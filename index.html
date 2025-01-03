@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>驭夫之术 - 智慧女性的婚姻指南</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-heart"></i> 驭夫之术 <i class="fas fa-heart"></i></h1>
+            <p>以智慧之心，掌握婚姻之道</p>
+            <div class="nav-buttons">
+                <button id="chatMode" class="mode-btn active"><i class="fas fa-comments"></i> 智慧对话</button>
+                <button id="gameMode" class="mode-btn"><i class="fas fa-gamepad"></i> 技巧练习</button>
+            </div>
+        </header>
+        
+        <main>
+            <!-- 对话模式 -->
+            <div id="chatSection" class="section active">
+                <div class="chat-container" id="chatContainer">
+                    <!-- 对话内容将在这里动态显示 -->
+                </div>
+                
+                <div class="input-container">
+                    <textarea id="userInput" placeholder="亲爱的姐妹，请告诉我您的困扰..."></textarea>
+                    <button id="sendBtn"><i class="fas fa-paper-plane"></i> 发送</button>
+                </div>
+            </div>
+
+            <!-- 游戏模式 -->
+            <div id="gameSection" class="section">
+                <div class="game-container">
+                    <div class="scenario-card">
+                        <h2 id="scenarioTitle">准备开始</h2>
+                        <p id="scenarioDescription">点击开始按钮，测试您的驭夫技巧～</p>
+                        <div id="optionsContainer" class="options-container">
+                            <!-- 选项将在这里动态显示 -->
+                        </div>
+                        <div class="game-controls">
+                            <button id="startGameBtn" class="primary-btn"><i class="fas fa-play"></i> 开始游戏</button>
+                            <div id="gameResult" class="game-result">
+                                <p id="scoreFeedback"></p>
+                                <p id="totalScore"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p><i class="fas fa-crown"></i> 让每个女人都成为婚姻的智者 <i class="fas fa-crown"></i></p>
+        </footer>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="game.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
