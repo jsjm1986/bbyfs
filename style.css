@@ -111,12 +111,55 @@ header p {
 
 .input-container {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
     background: rgba(255, 255, 255, 0.95);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.mode-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+.mode-btn i {
+    font-size: 14px;
+}
+
+.mode-btn:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+.mode-btn.active {
+    background-color: #4a90e2;
+    color: white;
+}
+
+#deepModeBtn.active {
+    background-color: #4a90e2;
+}
+
+#gentleModeBtn.active {
+    background: linear-gradient(135deg, #ff69b4, #ff99aa);
 }
 
 textarea {
@@ -128,6 +171,26 @@ textarea {
     min-height: 60px;
     font-family: inherit;
     transition: border-color 0.3s ease;
+}
+
+/* 修改发送按钮样式 */
+#sendBtn {
+    padding: 12px 30px;
+    background: #d23f57;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#sendBtn i {
+    font-size: 16px;
 }
 
 textarea:focus {

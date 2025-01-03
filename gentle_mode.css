@@ -1,0 +1,149 @@
+/* 温柔模式样式 */
+.gentle-mode-btn {
+    background: linear-gradient(135deg, #ffb6c1, #ffc0cb);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(255, 182, 193, 0.3);
+}
+
+.gentle-mode-btn:hover {
+    background: linear-gradient(135deg, #ff99aa, #ffb6c1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+}
+
+.gentle-mode-btn.active {
+    background: linear-gradient(135deg, #ff69b4, #ff99aa);
+}
+
+.gentle-mode-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 15px;
+    background: rgba(255, 182, 193, 0.1);
+    border: 1px solid #ffb6c1;
+    border-radius: 15px;
+    color: #ff69b4;
+    font-size: 0.9em;
+    display: none;
+    align-items: center;
+    gap: 5px;
+}
+
+.gentle-mode-indicator.active {
+    display: flex;
+    animation: gentleFadeIn 0.3s ease-out;
+}
+
+.gentle-mode-indicator i {
+    font-size: 14px;
+    color: #ff69b4;
+}
+
+/* 温柔模式消息样式 */
+.message.ai-message.gentle-mode-message {
+    background: linear-gradient(to right, #fff5f6, #fff0f3);
+    border-left: 4px solid #ffb6c1;
+    max-width: 90%;
+}
+
+.message.ai-message.gentle-mode-message .message-content {
+    font-size: 1.05em;
+    line-height: 1.6;
+    color: #444;
+}
+
+/* 温柔模式强调文字 */
+.gentle-emphasis {
+    color: #ff69b4;
+    font-weight: 500;
+}
+
+/* 温柔模式图标 */
+.gentle-icon {
+    color: #ff69b4;
+    margin-right: 5px;
+}
+
+/* 温柔模式动画 */
+@keyframes gentleFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gentlePulse {
+    0% {
+        box-shadow: 0 2px 5px rgba(255, 182, 193, 0.3);
+    }
+    50% {
+        box-shadow: 0 2px 15px rgba(255, 182, 193, 0.5);
+    }
+    100% {
+        box-shadow: 0 2px 5px rgba(255, 182, 193, 0.3);
+    }
+}
+
+/* 温柔模式列表样式 */
+.gentle-list {
+    list-style: none;
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.gentle-list li {
+    position: relative;
+    padding-left: 20px;
+    margin: 5px 0;
+    color: #666;
+}
+
+.gentle-list li:before {
+    content: '❤️';
+    position: absolute;
+    left: 0;
+    font-size: 0.9em;
+    color: #ffb6c1;
+}
+
+/* 温柔模式分割线 */
+.gentle-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #ffb6c1, transparent);
+    margin: 15px 0;
+}
+
+/* 温柔模式标签 */
+.gentle-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(255, 182, 193, 0.1);
+    border: 1px solid #ffb6c1;
+    border-radius: 12px;
+    color: #ff69b4;
+    font-size: 0.9em;
+    margin: 2px;
+}
+
+/* 温柔模式引用 */
+.gentle-quote {
+    border-left: 3px solid #ffb6c1;
+    padding: 10px 15px;
+    margin: 10px 0;
+    background: rgba(255, 182, 193, 0.05);
+    color: #666;
+    font-style: italic;
+} 

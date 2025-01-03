@@ -1,21 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 确保配置已加载
+    if (!window.GENTLE_MODE_CONFIG) {
+        console.error('温柔模式配置未加载，请检查 gentle_mode.js');
+        return;
+    }
+
     // 聊天相关元素
     const chatContainer = document.getElementById('chatContainer');
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
-    
-    // 创建深入模式按钮
-    const deepModeBtn = document.createElement('button');
-    deepModeBtn.id = 'deepModeBtn';
-    deepModeBtn.className = 'mode-btn';
-    deepModeBtn.innerHTML = '深入模式 <i class="fas fa-brain"></i>';
-    sendBtn.parentNode.insertBefore(deepModeBtn, sendBtn);
+    const deepModeBtn = document.getElementById('deepModeBtn');
+    const gentleModeBtn = document.getElementById('gentleModeBtn');
 
     // 创建深入模式状态指示器
     const deepModeIndicator = document.createElement('div');
     deepModeIndicator.className = 'deep-mode-indicator';
     deepModeIndicator.innerHTML = '<i class="fas fa-brain"></i> 深入对话模式';
     chatContainer.appendChild(deepModeIndicator);
+
+    // 创建温柔模式状态指示器
+    const gentleModeIndicator = document.createElement('div');
+    gentleModeIndicator.className = 'gentle-mode-indicator';
+    gentleModeIndicator.innerHTML = '<i class="fas fa-heart"></i> 温柔对话模式';
+    chatContainer.appendChild(gentleModeIndicator);
+
+    // 初始化温柔模式处理器
+    const gentleModeHandler = new GentleModeHandler();
 
     // 深入模式状态
     let isDeepMode = false;
@@ -73,6 +83,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 深入模式按钮点击事件
     deepModeBtn.addEventListener('click', () => {
+        // 如果温柔模式是开启的，先关闭它
+        if (gentleModeHandler.isGentleMode) {
+            const result = gentleModeHandler.toggleGentleMode();
+            gentleModeBtn.classList.remove('active');
+            gentleModeIndicator.classList.remove('active');
+        }
+
         isDeepMode = !isDeepMode;
         deepModeBtn.classList.toggle('active');
         deepModeIndicator.classList.toggle('active');
@@ -435,6 +452,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 添加流式输出功能
     async function streamResponse(text, element) {
+        if (!text || typeof text !== 'string') {
+            console.error('无效的响应文本:', text);
+            element.textContent = '抱歉，出现了一些错误，请重试。';
+            return;
+        }
+
         const delay = 20; // 每个字符的延迟时间（毫秒）
         element.textContent = ''; // 清空内容
         
@@ -443,6 +466,28 @@ document.addEventListener('DOMContentLoaded', () => {
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
+
+    // 温柔模式按钮点击事件
+    gentleModeBtn.addEventListener('click', () => {
+        // 如果深入模式是开启的，先关闭它
+        if (isDeepMode) {
+            isDeepMode = false;
+            deepModeBtn.classList.remove('active');
+            deepModeIndicator.classList.remove('active');
+            questionPhase = 0;
+            currentTopic = '';
+        }
+
+        const result = gentleModeHandler.toggleGentleMode();
+        gentleModeBtn.classList.toggle('active');
+        gentleModeIndicator.classList.toggle('active');
+        
+        if (result.isGentleMode) {
+            appendMessage('ai', result.message, false, true);
+        } else {
+            appendMessage('ai', result.message);
+        }
+    });
 
     // 修改发送消息的函数
     async function sendMessage() {
@@ -456,19 +501,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // 显示AI正在输入的状态
         const aiMessage = document.createElement('div');
         aiMessage.className = 'message ai-message';
+        if (gentleModeHandler.isGentleMode) {
+            aiMessage.classList.add('gentle-mode-message');
+        } else if (isDeepMode) {
+            aiMessage.classList.add('deep-mode-message');
+        }
+        
         const aiContent = document.createElement('div');
         aiContent.className = 'message-content';
         aiMessage.appendChild(aiContent);
         chatContainer.appendChild(aiMessage);
 
         try {
-            let prompt = userInput;
-            if (isDeepMode) {
+            let response;
+            
+            // 处理温柔模式
+            if (gentleModeHandler.isGentleMode) {
+                response = await gentleModeHandler.handleUserInput(userInput, callDeepseekAPI);
+            } 
+            // 处理深入模式
+            else if (isDeepMode) {
                 // 在深入模式下，根据当前阶段构建特定的提示词
                 if (!currentTopic) {
                     currentTopic = userInput;
                 }
-                prompt = `作为一位专业的婚姻心理咨询师，基于用户的回答："${userInput}"，以及当前话题："${currentTopic}"，
+                const prompt = `作为一位专业的婚姻心理咨询师，基于用户的回答："${userInput}"，以及当前话题："${currentTopic}"，
                          请从以下维度进行深入分析和提问：
 
 1. 情感分析维度：
@@ -516,7 +573,12 @@ document.addEventListener('DOMContentLoaded', () => {
 【追问】：深入的问题
 【说明】：问题的意义和目的`;
 
-                // 完成一轮深入探讨后的总结提示词
+                response = await callDeepseekAPI(prompt);
+                
+                // 推进对话阶段
+                questionPhase++;
+                
+                // 如果达到总结阶段
                 if (questionPhase >= 3) {
                     const summaryPrompt = `作为专业的婚姻心理咨询师，请基于之前的对话内容，从以下维度进行系统性总结和建议：
 
@@ -553,25 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 【改善建议】：具体可行的改善方案
 【执行步骤】：清晰的行动指南
 【注意事项】：需要关注的要点`;
-                }
-            }
 
-            // 获取AI响应
-            const response = await callDeepseekAPI(prompt);
-            
-            // 流式输出AI响应
-            await streamResponse(response, aiContent);
-
-            // 在深入模式下，自动提出下一个问题
-            if (isDeepMode) {
-                questionPhase++;
-                if (questionPhase >= 3) {
-                    // 完成一轮深入探讨后，给出总结和建议
-                    const summaryPrompt = `基于之前的对话，请总结用户的核心问题，并给出具体的改善建议。特别关注：
-                                         1. 情感模式和需求
-                                         2. 行为模式的效果
-                                         3. 认知框架的调整
-                                         4. 实际可执行的步骤`;
                     const summary = await callDeepseekAPI(summaryPrompt);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     appendMessage('ai', '让我们来总结一下我们的探讨：');
@@ -588,8 +632,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentTopic = '';
                     isDeepMode = false;
                     deepModeBtn.classList.remove('active');
+                    deepModeIndicator.classList.remove('active');
+                    return;
                 }
+            } 
+            // 普通模式
+            else {
+                response = await callDeepseekAPI(userInput);
             }
+            
+            // 流式输出AI响应
+            if (response) {
+                await streamResponse(response, aiContent);
+            } else {
+                aiContent.textContent = '抱歉，未能获取到有效响应，请重试。';
+            }
+
         } catch (error) {
             console.error('Error:', error);
             aiContent.textContent = '抱歉，出现了一些错误，请重试。';
