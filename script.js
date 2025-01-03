@@ -3,6 +3,126 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chatContainer');
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
+    
+    // 创建深入模式按钮
+    const deepModeBtn = document.createElement('button');
+    deepModeBtn.id = 'deepModeBtn';
+    deepModeBtn.className = 'mode-btn';
+    deepModeBtn.innerHTML = '深入模式 <i class="fas fa-brain"></i>';
+    sendBtn.parentNode.insertBefore(deepModeBtn, sendBtn);
+
+    // 创建深入模式状态指示器
+    const deepModeIndicator = document.createElement('div');
+    deepModeIndicator.className = 'deep-mode-indicator';
+    deepModeIndicator.innerHTML = '<i class="fas fa-brain"></i> 深入对话模式';
+    chatContainer.appendChild(deepModeIndicator);
+
+    // 深入模式状态
+    let isDeepMode = false;
+    let currentTopic = '';
+    let questionPhase = 0;
+
+    // 深入模式问题模板
+    const deepQuestions = {
+        initial: [
+            "能详细描述一下这个问题是什么时候开始的吗？",
+            "这个情况让你感受到了什么样的情绪？",
+            "你觉得这个问题的根源可能是什么？"
+        ],
+        emotional: [
+            "这种感受让你想起了什么过往的经历吗？",
+            "在你的原生家庭中，是否有类似的情感模式？",
+            "你期待中的理想状态是什么样的？"
+        ],
+        behavioral: [
+            "在这种情况下，你通常会如何反应？",
+            "这种行为模式在其他关系中是否也存在？",
+            "你觉得这种反应方式的效果如何？"
+        ],
+        cognitive: [
+            "你对这个情况的理解是什么？",
+            "你认为对方是如何看待这个问题的？",
+            "有没有其他可能的解释角度？"
+        ]
+    };
+
+    // 修改添加消息的函数
+    function appendMessage(sender, text, isDeepMode = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        if (sender === 'ai' && isDeepMode) {
+            messageDiv.classList.add('deep-mode-message');
+        }
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (sender === 'user') {
+            contentDiv.textContent = text;
+        } else {
+            // 如果是AI消息，支持emoji和格式化
+            contentDiv.innerHTML = text.replace(/\n/g, '<br>')
+                                     .replace(/【([^】]+)】/g, '<strong style="color: #4a90e2">【$1】</strong>')
+                                     .replace(/•/g, '<span style="color: #666">•</span>');
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 深入模式按钮点击事件
+    deepModeBtn.addEventListener('click', () => {
+        isDeepMode = !isDeepMode;
+        deepModeBtn.classList.toggle('active');
+        deepModeIndicator.classList.toggle('active');
+        
+        if (isDeepMode) {
+            appendMessage('ai', `🧠 已进入深入对话模式
+
+我是您的专业婚恋心理咨询师。在这个模式下，我将通过系统性的提问和分析，帮助您更深入地理解和解决问题。
+
+【分析维度】
+1️⃣ 情感探索
+   • 识别核心情绪和需求
+   • 分析情感反应模式
+   • 探索情绪触发点
+
+2️⃣ 认知解析
+   • 发现思维模式和信念
+   • 识别潜在认知偏差
+   • 探讨问题归因方式
+
+3️⃣ 行为观察
+   • 分析行为模式和效果
+   • 理解行为背后的动机
+   • 评估应对策略的有效性
+
+4️⃣ 关系动力
+   • 探索互动循环模式
+   • 分析权力和边界议题
+   • 评估亲密关系需求
+
+5️⃣ 原生家庭影响
+   • 探索家庭互动模式
+   • 分析代际传递影响
+   • 识别家庭价值观
+
+【对话流程】
+1. 您分享困扰的问题
+2. 我进行专业分析和提问
+3. 通过3-5轮深入对话
+4. 最后给出系统性建议
+
+现在，请告诉我您想探讨的问题。我会用专业的视角，帮助您更好地理解和解决它。`, true);
+        } else {
+            appendMessage('ai', '已退出深入模式。我们继续轻松对话，随时欢迎您重新进入深入模式。');
+            // 重置状态
+            questionPhase = 0;
+            currentTopic = '';
+            deepModeIndicator.classList.remove('active');
+        }
+    });
 
     // 游戏相关元素
     const chatMode = document.getElementById('chatMode');
@@ -340,13 +460,136 @@ document.addEventListener('DOMContentLoaded', () => {
         aiContent.className = 'message-content';
         aiMessage.appendChild(aiContent);
         chatContainer.appendChild(aiMessage);
-        
+
         try {
+            let prompt = userInput;
+            if (isDeepMode) {
+                // 在深入模式下，根据当前阶段构建特定的提示词
+                if (!currentTopic) {
+                    currentTopic = userInput;
+                }
+                prompt = `作为一位专业的婚姻心理咨询师，基于用户的回答："${userInput}"，以及当前话题："${currentTopic}"，
+                         请从以下维度进行深入分析和提问：
+
+1. 情感分析维度：
+   - 探索情绪的根源和触发点
+   - 分析情感反应模式和强度
+   - 识别潜在的情感需求
+   - 评估情感依恋类型
+   - 探讨情感表达方式
+
+2. 认知分析维度：
+   - 识别核心信念和思维模式
+   - 发现可能的认知偏差
+   - 分析问题归因方式
+   - 评估期望和标准的合理性
+   - 探索解决问题的思维框架
+
+3. 行为分析维度：
+   - 观察行为反应模式
+   - 分析行为的功能性
+   - 评估行为的适应性
+   - 探索行为背后的动机
+   - 识别行为的强化因素
+
+4. 关系动力维度：
+   - 分析权力和控制模式
+   - 评估亲密关系的边界
+   - 探索沟通方式的效能
+   - 识别互动中的循环模式
+   - 分析依恋需求的满足状况
+
+5. 原生家庭维度：
+   - 探索家庭互动模式的代际传递
+   - 分析原生家庭的影响
+   - 识别家庭规则和价值观
+   - 评估家庭角色的影响
+   - 探讨家庭创伤的影响
+
+请基于以上维度：
+1. 给出专业的心理分析，解释用户回答中反映的核心议题
+2. 选择最相关的维度，提出一个深入的追问
+3. 说明这个追问如何帮助理解用户的核心问题
+
+回答格式：
+【分析】：专业的心理分析
+【追问】：深入的问题
+【说明】：问题的意义和目的`;
+
+                // 完成一轮深入探讨后的总结提示词
+                if (questionPhase >= 3) {
+                    const summaryPrompt = `作为专业的婚姻心理咨询师，请基于之前的对话内容，从以下维度进行系统性总结和建议：
+
+1. 核心问题分析：
+   - 情感层面的核心议题
+   - 认知层面的关键模式
+   - 行为层面的主要特征
+   - 关系动力的核心特点
+   - 原生家庭的影响要素
+
+2. 问题的形成与维持：
+   - 问题的发展历程
+   - 维持问题的因素
+   - 尝试过的解决方案
+   - 解决方案的效果
+   - 阻碍改变的因素
+
+3. 改善建议：
+   - 情感调节策略
+   - 认知重构方法
+   - 行为改变技巧
+   - 关系互动建议
+   - 自我成长方向
+
+4. 具体执行步骤：
+   - 短期改善目标
+   - 中期发展方向
+   - 长期成长规划
+   - 可能遇到的困难
+   - 应对困难的策略
+
+请提供：
+【问题总结】：系统性分析问题的本质
+【改善建议】：具体可行的改善方案
+【执行步骤】：清晰的行动指南
+【注意事项】：需要关注的要点`;
+                }
+            }
+
             // 获取AI响应
-            const response = await callDeepseekAPI(userInput);
+            const response = await callDeepseekAPI(prompt);
             
             // 流式输出AI响应
             await streamResponse(response, aiContent);
+
+            // 在深入模式下，自动提出下一个问题
+            if (isDeepMode) {
+                questionPhase++;
+                if (questionPhase >= 3) {
+                    // 完成一轮深入探讨后，给出总结和建议
+                    const summaryPrompt = `基于之前的对话，请总结用户的核心问题，并给出具体的改善建议。特别关注：
+                                         1. 情感模式和需求
+                                         2. 行为模式的效果
+                                         3. 认知框架的调整
+                                         4. 实际可执行的步骤`;
+                    const summary = await callDeepseekAPI(summaryPrompt);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    appendMessage('ai', '让我们来总结一下我们的探讨：');
+                    const summaryMessage = document.createElement('div');
+                    summaryMessage.className = 'message ai-message summary';
+                    const summaryContent = document.createElement('div');
+                    summaryContent.className = 'message-content';
+                    summaryMessage.appendChild(summaryContent);
+                    chatContainer.appendChild(summaryMessage);
+                    await streamResponse(summary, summaryContent);
+                    
+                    // 重置深入模式状态
+                    questionPhase = 0;
+                    currentTopic = '';
+                    isDeepMode = false;
+                    deepModeBtn.classList.remove('active');
+                }
+            }
         } catch (error) {
             console.error('Error:', error);
             aiContent.textContent = '抱歉，出现了一些错误，请重试。';
@@ -354,22 +597,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 滚动到底部
         chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    // 修改添加消息的函数
-    function appendMessage(sender, text) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        
-        if (sender === 'user') {
-            contentDiv.textContent = text;
-        }
-        
-        messageDiv.appendChild(contentDiv);
-        chatContainer.appendChild(messageDiv);
     }
 
     // 事件监听

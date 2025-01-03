@@ -52,6 +52,7 @@ header p {
     overflow-y: auto;
     min-height: 400px;
     border: 1px solid #ffe4e6;
+    position: relative;
 }
 
 .message {
@@ -190,19 +191,45 @@ footer {
 }
 
 .mode-btn {
-    padding: 10px 20px;
-    background: transparent;
-    border: 2px solid #d23f57;
-    color: #d23f57;
+    padding: 8px 15px;
+    margin-right: 10px;
+    border: none;
     border-radius: 20px;
+    background-color: #f0f0f0;
+    color: #666;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mode-btn.active {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.mode-btn i {
     font-size: 16px;
 }
 
-.mode-btn:hover, .mode-btn.active {
-    background: #d23f57;
-    color: white;
+.message.ai-message.summary {
+    background-color: #f8f9fa;
+    border-left: 4px solid #4a90e2;
+    margin-top: 20px;
+}
+
+.message.ai-message.summary .message-content {
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+#deepModeBtn:hover {
+    background-color: #e0e0e0;
+}
+
+#deepModeBtn.active:hover {
+    background-color: #357abd;
 }
 
 /* 分区显示控制 */
@@ -800,4 +827,104 @@ footer {
         align-items: center;
         margin-top: 10px;
     }
+} 
+
+/* 深入模式状态提示 */
+.deep-mode-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 15px;
+    background: rgba(74, 144, 226, 0.1);
+    border: 1px solid #4a90e2;
+    border-radius: 15px;
+    color: #4a90e2;
+    font-size: 0.9em;
+    display: none;
+    align-items: center;
+    gap: 5px;
+}
+
+.deep-mode-indicator.active {
+    display: flex;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.deep-mode-indicator i {
+    font-size: 14px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+} 
+
+.message.ai-message.deep-mode-message {
+    background: linear-gradient(to right, #f8f9fa, #e3f2fd);
+    border-left: 4px solid #4a90e2;
+    max-width: 90%;
+}
+
+.message.ai-message.deep-mode-message .message-content {
+    font-size: 1.05em;
+    line-height: 1.6;
+}
+
+/* 深入模式的分析维度样式 */
+.analysis-dimension {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+}
+
+/* 维度标题 */
+.dimension-title {
+    font-weight: bold;
+    color: #4a90e2;
+    margin-bottom: 8px;
+}
+
+/* 维度列表 */
+.dimension-list {
+    padding-left: 20px;
+    color: #555;
+}
+
+/* 流程步骤 */
+.process-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.step-number {
+    width: 24px;
+    height: 24px;
+    background: #4a90e2;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em;
+}
+
+/* 深入模式状态提示增强 */
+.deep-mode-indicator {
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(74, 144, 226, 0.2));
+    border: 1px solid #4a90e2;
+    box-shadow: 0 2px 5px rgba(74, 144, 226, 0.1);
+    padding: 8px 15px;
+}
+
+.deep-mode-indicator.active {
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 2px 5px rgba(74, 144, 226, 0.1); }
+    50% { box-shadow: 0 2px 15px rgba(74, 144, 226, 0.2); }
+    100% { box-shadow: 0 2px 5px rgba(74, 144, 226, 0.1); }
 } 
